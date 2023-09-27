@@ -31,7 +31,7 @@ const Tree = (arr = []) => {
 
     }
 
-    let treeRoot = buildTree(arr);;
+    let treeRoot = buildTree(arr);
 
     const insert = (val,root = treeRoot) => {
 
