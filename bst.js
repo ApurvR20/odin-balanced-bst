@@ -31,7 +31,7 @@ const Tree = (arr = []) => {
 
     }
 
-    let treeRoot = buildTree(arr);
+    let treeRoot = buildTree(arr);;
 
     const insert = (val,root = treeRoot) => {
 
@@ -176,12 +176,12 @@ const prettyPrint = (node, prefix = "", isLeft = true) => {
     }
   };
 
-bst1.insert(1.5);
-bst1.insert(2.5);
-bst1.insert(3);
-bst1.insert(3.75);
-bst1.insert(0);
-bst1.insert(.5);
-prettyPrint(bst1.treeRoot);
-bst1.remove(4);
+// bst1.insert(1.5);
+// bst1.insert(2.5);
+// bst1.insert(3);
+// bst1.insert(3.75);
+// bst1.insert(0);
+// bst1.insert(.5);
+// prettyPrint(bst1.treeRoot);
+// bst1.remove(4);
 prettyPrint(bst1.treeRoot);
