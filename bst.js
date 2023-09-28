@@ -1,10 +1,7 @@
-//remove needs to check if value is in tree, also if subtree is being deleted
-
 const NodeFactory = (data = 0, left = null, right = null) => ({data, left, right});
 
 const Tree = (arr = []) => {
 
-    const inOrderArr = [];
     arr.sort();
     let i = 0;
     while(i < arr.length-1)
@@ -32,6 +29,8 @@ const Tree = (arr = []) => {
     }
 
     let treeRoot = buildTree(arr);
+
+    const root = () => (treeRoot);
 
     const insert = (val,root = treeRoot) => {
 
@@ -124,7 +123,7 @@ const Tree = (arr = []) => {
 
     }
 
-    const levelOrder = () => {
+    const levelOrder = (func = undefined) => {
         
         const queue = [];
         const arr = [];
@@ -137,51 +136,143 @@ const Tree = (arr = []) => {
             if(queue[0].right)
             queue.push(queue[0].right);
 
+            if(func)
+            {
+                func(queue[0]);
+            }
             arr.push(queue[0].data);
             queue.shift();
         }
 
+        if(!func)
         return arr;
     }
 
-    const inOrder = (func,arr = [],root = treeRoot) => {
+    const inOrder = (func = undefined,arr = [],root = treeRoot) => {
 
         if(root.left)
         inOrder(func,arr,root.left);
         
-        func(root.data);
-        arr.push(root.data);
+        if(func) func(root);
+        else arr.push(root.data);
 
         if(root.right) inOrder(func,arr,root.right);
         
-        return arr;
+        if(!func) return arr;
     }
+
+    const preOrder = (func = undefined, arr = [], root = treeRoot) => {
+        if(func) func(root);
+        else arr.push(root.data);
+        if(root.left) preOrder(func,arr,root.left);
+        if(root.right) preOrder(func, arr, root.right);
+        if(!func) return arr;
+    }
+
+    const postOrder = (func = undefined, arr = [], root = treeRoot) => {
+        if(root.left) postOrder(func,arr,root.left);
+        if(root.right) postOrder(func,arr,root.right);
+        if(func) func(root);
+        else arr.push(root.data);
+
+        if(!func) return arr;
+
+    }
+
+    const find = (value, root = treeRoot) => {
+
+        if(root.data === value)
+        return root;
+
+        if(value < root.data)
+        return find(value,root.left);
+
+        return find(value,root.right);
+    }
+
+    const height = (node) => {
+
+        if(!node) return -1;
+        
+        return 1+Math.max(height(node.left), height(node.right));
+    }
+
+    const depth = (node, root = treeRoot, d = 0) => {
+
+        if(root.data === node.data) return d;
+        if(node.data < root.data) return depth(node,root.left,d+1);
+        return depth(node,root.right,d+1);
+
+    }
+
+    const checkBalance = (root) => {
+
+        if(!root) return 0;
+        let lh = checkBalance(root.left);
+        if(lh == -1) return -1;
+        let rh = checkBalance(root.right);
+        if(rh == -1) return -1;
+
+        if(Math.abs(lh - rh) > 1)
+        return -1;
+
+        return Math.max(lh,rh)+1;
+
+    }
+
+    const isBalanced = () => checkBalance(treeRoot) > 0;     
+
+    const rebalance = () => {
+
+        const arr = inOrder();
+        treeRoot = {...buildTree(arr)};
+        return treeRoot;
+    }
+
+    const prettyPrint = (node = treeRoot, prefix = "", isLeft = true) => {
+        if (node === null) {
+          return;
+        }
+        if (node.right !== null) {
+          prettyPrint(node.right, `${prefix}${isLeft ? "│   " : "    "}`, false);
+        }
+        console.log(`${prefix}${isLeft ? "└── " : "┌── "}${node.data}`);
+        if (node.left !== null) {
+          prettyPrint(node.left, `${prefix}${isLeft ? "    " : "│   "}`, true);
+        }
+      };
+    
     
 
-    return {treeRoot,buildTree,insert,remove,levelOrder,inOrder};
+    return {root,buildTree,insert,remove,levelOrder,inOrder,preOrder,postOrder,find, height,depth,isBalanced,rebalance,prettyPrint};
 }
 
-const bst1 = Tree([0,1,2,3,4]);
+const createArray = () => {
 
-const prettyPrint = (node, prefix = "", isLeft = true) => {
-    if (node === null) {
-      return;
+    const arr = [];
+    for(let i = 0; i < 20;i+=1)
+    {
+        arr.push(Math.floor(Math.random() * 100));
     }
-    if (node.right !== null) {
-      prettyPrint(node.right, `${prefix}${isLeft ? "│   " : "    "}`, false);
-    }
-    console.log(`${prefix}${isLeft ? "└── " : "┌── "}${node.data}`);
-    if (node.left !== null) {
-      prettyPrint(node.left, `${prefix}${isLeft ? "    " : "│   "}`, true);
-    }
-  };
+    return arr;
+}
 
-// bst1.insert(1.5);
-// bst1.insert(2.5);
-// bst1.insert(3);
-// bst1.insert(3.75);
-// bst1.insert(0);
-// bst1.insert(.5);
-// prettyPrint(bst1.treeRoot);
-// bst1.remove(4);
-prettyPrint(bst1.treeRoot);
+let bst = Tree(createArray());
+console.log(`Balanced : ${bst.isBalanced()}\n`);
+console.log(`InOrder : ${bst.inOrder()}\nPreOrder : ${bst.preOrder()}\nPostOrder : ${bst.postOrder()}\n`);
+
+const unbalance = () => {
+    for(let i = 0; i < 10; i+=1)
+    {
+        bst.insert(Math.floor(Math.random()*100));
+    }
+}
+
+unbalance();
+console.log(`Balanced : ${bst.isBalanced()}\n`);
+console.log(bst.root().data);
+bst.rebalance();
+console.log(bst.root().data);
+console.log(`Balanced : ${bst.isBalanced()}\n`);
+console.log(`InOrder : ${bst.inOrder()}\nPreOrder : ${bst.preOrder()}\nPostOrder : ${bst.postOrder()}\n`);
+
